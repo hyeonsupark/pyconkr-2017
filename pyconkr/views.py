@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
+import json
 from django.contrib import messages
 from django.contrib.auth import login as user_login, logout as user_logout
 from django.contrib.auth.models import User
@@ -70,6 +71,9 @@ def schedule(request):
         'rooms': rooms,
         'width': 100.0 / max(len(rooms), 1),
     }
+
+    logger.info('Narrow Data: %s', json.dumps(narrow))
+
     return render(request, 'schedule.html', contexts)
 
 
