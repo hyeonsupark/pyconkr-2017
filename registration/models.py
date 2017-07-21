@@ -113,3 +113,46 @@ class ManualPayment(models.Model):
 
     def __str__(self):
         return '({}) {} ({})원'.format(self.payment_status.upper(), self.title, self.price)
+
+class Ticket(models.Model):
+    user = models.ForeignKey(User)
+    staff = models.ForeignKey(User)
+    retry = models.PositiveIntegerField(null=False)
+    reticketing = models.BooleanField(default=False)
+    status = models.CharField(
+        max_length=20,
+        default=null,
+        null=True,
+        blank=True,
+        choices=(
+            ('used', u'Used'),
+            ('cancelled', u'Cancelled'),
+        )
+    )
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
+    used = models.DateTimeField(null=True, blank=True)
+    canceled = models.DateTimeField(null=True, blank=True)
+
+    def cancel(self):
+        # ToDO : 티켓을 회수하여 취소하는 작업을 한다 취소가 가능한지 확인하는 루틴 필요
+        self.status = 'used'
+        self.save()
+
+    @classmethod
+    def find_or_create(cls, user_email):
+        # 기존에 발행된 티켓이 있다면 그걸 리턴함
+        # user_email 로 user 를 찾아서, canceled 이 되지 않은 것을 찾음
+
+        ticket = cls(user=user_email)
+        return ticket
+
+    @property
+    def is_canceled(self):
+        if self.canceled in [None, '']:
+            return False
+
+        return True
+
+    def __str__(self):
+        return 'Ticket __STR__'
