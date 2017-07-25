@@ -3,6 +3,9 @@ from __future__ import unicode_literals
 
 from django.db import models
 from django.contrib.auth.models import User
+import datetime
+import base30_korean as base30
+import logging
 
 
 class Option(models.Model):
@@ -80,6 +83,36 @@ class Registration(models.Model):
     confirmed = models.DateTimeField(null=True, blank=True)
     canceled = models.DateTimeField(null=True, blank=True)
 
+    @property
+    def confirmation_code(self):
+        logger = logging.getLogger(__name__)
+        logger.debug(self.created.second)
+        second = self.created.second
+        return base30.encode(self.pk * 60 + second)
+
+    @classmethod
+    def find_by_confirmation_code(cls, code):
+        try:
+            number = base30.decode(code)
+
+            if number < 0:
+                return None
+
+            check_code = number % 60
+            pk = number // 60
+            obj = cls.objects.get(pk=pk)
+
+            if obj.created.second != check_code:
+                return None
+
+        except ValueError:
+            return None
+
+        except cls.DoesNotExist:
+            return None
+
+        return obj
+
 
 class ManualPayment(models.Model):
     user = models.ForeignKey(User)
@@ -114,14 +147,15 @@ class ManualPayment(models.Model):
     def __str__(self):
         return '({}) {} ({})원'.format(self.payment_status.upper(), self.title, self.price)
 
+
 class Ticket(models.Model):
     user = models.ForeignKey(User)
-    staff = models.ForeignKey(User)
+    # staff = models.ForeignKey(User)
     retry = models.PositiveIntegerField(null=False)
     reticketing = models.BooleanField(default=False)
     status = models.CharField(
         max_length=20,
-        default=null,
+        default=None,
         null=True,
         blank=True,
         choices=(

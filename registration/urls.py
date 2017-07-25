@@ -14,8 +14,8 @@ urlpatterns = [
         login_required(views.RegistrationReceiptDetail.as_view()), name='registration_receipt'),
     url(r'^payment/manual/(\d+)/$', views.manual_registration, name='manual_registration'),
     url(r'^payment/manual/payment/$', views.manual_payment_process, name='manual_payment'),
-    url(r'^ticket/find/$', permission_required(), name='ticket_find'),
-    url(r'^ticket/(\d+)/$', ),
-    url(r'^ticket/(\d+)/check/$', ),
-    url(r'^ticket/(\d+)/print/$', ),
+    # url(r'^ticket/find/$', permission_required(), name='ticket_find'),
+    # url(r'^ticket/(\d+)/$', ),
+    # url(r'^ticket/(\d+)/check/$', ),
+    # url(r'^ticket/(\d+)/print/$', ),
 ]
